@@ -1,0 +1,30 @@
+{
+    "appKeys": {
+        "KEY_CONDITION": 1,
+        "KEY_STATION": 0
+    },
+    "capabilities": [
+        "configurable"
+    ],
+    "companyName": "flyinactor91@gmail.com",
+    "longName": "METAR Minimal",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/AppIcon.png",
+                "menuIcon": true,
+                "name": "APP_ICON",
+                "type": "png"
+            }
+        ]
+    },
+    "sdkVersion": "2",
+    "shortName": "METAR Minimal",
+    "uuid": "77a484f5-1ed0-4ca9-bafc-6f2d39b3f9b5",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": true
+    }
+}
