@@ -23,7 +23,7 @@
     "shortName": "METAR Minimal",
     "uuid": "77a484f5-1ed0-4ca9-bafc-6f2d39b3f9b5",
     "versionCode": 1,
-    "versionLabel": "1.0",
+    "versionLabel": "1.2",
     "watchapp": {
         "watchface": true
     }

@@ -62,9 +62,9 @@ function parseTempAndDew(rawList) {
   if (rawList.length != 0) {
     var slashIndex = rawList[rawList.length-1].indexOf("/");
     if (slashIndex != -1) {
-      var tempAndDew = rawList.pop();
-      temperature = tempAndDew.substring(0,slashIndex).replace("M","-");
-      dewpoint = tempAndDew.substring(slashIndex+1).replace("M","-");
+      var tempAndDew = rawList.pop().split('/');
+      temperature = tempAndDew[0].replace("M","-");
+      dewpoint = tempAndDew[1].replace("M","-");
       //console.log("Temperature = " + temperature);
       //console.log("Dewpoint = " + dewpoint);
     }
@@ -89,7 +89,7 @@ function parseWinds(rawList) {
   windSpeed = "..KT";
   if (rawList.length != 0) {
     var wind = rawList[0];
-    if ((wind.substring(wind.length-2) == "KT") || ((wind.length > 7) && (wind.indexOf("G") != -1))) {
+    if ((wind.substring(wind.length-2) == "KT") || (wind.substring(wind.length-3) == "KTS") || ((wind.length > 7) && (wind.indexOf("G") != -1))) {
       wind = rawList.shift();
       windDirection = wind.substring(0,3) + "\xB0";
       windSpeed = wind.substring(3);
@@ -104,6 +104,11 @@ function parseWinds(rawList) {
       //console.log("Wind Speed = " + windSpeed);
     }
   }
+  if (rawList.length != 0) {
+    if ((rawList[0].length == 7) && (rawList[0][3] == "V") && (!isNaN(rawList[0].substring(0,3))) && (!isNaN(rawList[0].substring(4)))) {
+      rawList.shift();
+    }
+  }
   return rawList;
 }
 
@@ -113,6 +118,9 @@ function parseVisibility(rawList) {
     if (rawList[0].indexOf("SM") != -1) {
       var vis = rawList.shift();
       visibility = eval(vis.substring(0, vis.length - 2)).toString();
+    } else if (rawList[0] == "9999") {
+      visibility = "10";
+      rawList.shift();
     } else if ((rawList.length > 1) && (rawList[1].indexOf("SM") != -1)) {
       var vis1 = eval(rawList.shift());
       var vis2 = rawList.shift();
@@ -137,11 +145,11 @@ function parseClouds(rawList) {
   var cloudList = [];
   if (rawList.length != 0) {
     for (var i=rawList.length-1; i>-1; i--) {
-      if ((rawList[i].length == 6) && (cloudCodeList.indexOf(rawList[i].substring(0,3)) != -1)) {
-        cloudList.push(rawList[i]);
+      if (cloudCodeList.indexOf(rawList[i].substring(0,3)) != -1) {
+        cloudList.push(rawList[i].substring(0,6));
         rawList.splice(i,1);
       } else if ((rawList[i].length == 5) && (rawList[i].substring(0, 2) == "VV")) {
-        cloudList.push(rawList[i]);
+        cloudList.push(rawList[i].substring(0,5));
         rawList.splice(i,1);
       }
     }
