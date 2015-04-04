@@ -4,6 +4,7 @@
         "KEY_STATION": 0
     },
     "capabilities": [
+        "location",
         "configurable"
     ],
     "companyName": "flyinactor91@gmail.com",
@@ -23,7 +24,7 @@
     "shortName": "METAR Minimal",
     "uuid": "77a484f5-1ed0-4ca9-bafc-6f2d39b3f9b5",
     "versionCode": 1,
-    "versionLabel": "1.2",
+    "versionLabel": "2.1",
     "watchapp": {
         "watchface": true
     }

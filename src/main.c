@@ -6,6 +6,8 @@
 #define KEY_CONDITION 1
 
 #define UPDATE_INTERVAL 15 //minutes
+#define FAIL_RETRY_INTERVAL 5 //minutes
+#define FAIL_RECOG_INTERVAL 2 //minutes
 
 //---------------------------------Pointer Declarations---------------------------------//
 static Window *s_main_window;
@@ -14,7 +16,8 @@ static TextLayer *s_time_layer;
 static TextLayer *s_station_layer;
 static TextLayer *s_condition_layer;
 
-int i;
+int updateTimer;
+int failedUpdateTimer;
 
 //--------------------------------Pebble UI Loading/Unloading--------------------------------//
 
@@ -82,11 +85,21 @@ static void update_time() {
 
 static void auto_update_handler() {
   //Call for updated data if reached UPDATE_INTERVAL
-  if (i > UPDATE_INTERVAL) {
-    i = 0;
+  if (updateTimer > UPDATE_INTERVAL) {
+    updateTimer = 0;
+    APP_LOG(APP_LOG_LEVEL_INFO, "Reseting counter to 0");
+    failedUpdateTimer = 0;
     app_message_outbox_send(); //Sending empty outbox requests new updated inbox
   } else {
-    i++;
+    updateTimer++;
+    failedUpdateTimer++;
+    APP_LOG(APP_LOG_LEVEL_INFO, "Incremented counter");
+  }
+  if (failedUpdateTimer == FAIL_RECOG_INTERVAL) {
+    APP_LOG(APP_LOG_LEVEL_INFO, "Set screen and counter to 3");
+    failedUpdateTimer = FAIL_RECOG_INTERVAL + 1;
+    updateTimer = UPDATE_INTERVAL - FAIL_RETRY_INTERVAL;
+    text_layer_set_text(s_condition_layer, ":(");
   }
 }
 
@@ -134,6 +147,8 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     // Look for next item
     t = dict_read_next(iterator);
   }
+  APP_LOG(APP_LOG_LEVEL_INFO, "Setting to 3 after successful update");
+  failedUpdateTimer = FAIL_RECOG_INTERVAL + 1;
 }
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {
@@ -151,7 +166,8 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
 //-----------------------------------Init Deinit and Main-----------------------------------//
 
 static void init() {
-  i = 0;
+  updateTimer = 0;
+  failedUpdateTimer = 0;
   
   // Create main Window element and assign to pointer
   s_main_window = window_create();
