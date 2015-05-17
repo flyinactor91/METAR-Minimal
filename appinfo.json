@@ -7,24 +7,27 @@
         "location",
         "configurable"
     ],
-    "companyName": "flyinactor91@gmail.com",
+    "companyName": "Michael duPont",
     "longName": "METAR Minimal",
     "projectType": "native",
     "resources": {
         "media": [
             {
-                "file": "images/AppIcon.png",
+                "file": "images/AppIconBW.png",
                 "menuIcon": true,
                 "name": "APP_ICON",
                 "type": "png"
             }
         ]
     },
-    "sdkVersion": "2",
+    "sdkVersion": "3",
     "shortName": "METAR Minimal",
+    "targetPlatforms": [
+        "aplite",
+        "basalt"
+    ],
     "uuid": "77a484f5-1ed0-4ca9-bafc-6f2d39b3f9b5",
-    "versionCode": 1,
-    "versionLabel": "2.1",
+    "versionLabel": "3.0",
     "watchapp": {
         "watchface": true
     }

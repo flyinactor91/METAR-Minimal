@@ -119,6 +119,13 @@ static void update_condition(Tuple *t) {
   static char buffer[8];
   snprintf(buffer, sizeof(buffer), "%s", t->value->cstring);
   text_layer_set_text(s_condition_layer, buffer);
+  #ifdef PBL_COLOR
+  if (strcmp(buffer, "VFR") == 0) { window_set_background_color(s_main_window, GColorMayGreen); }
+  else if (strcmp(buffer, "MVFR") == 0) { window_set_background_color(s_main_window, GColorPictonBlue); }
+  else if (strcmp(buffer, "IFR") == 0) { window_set_background_color(s_main_window, GColorRoseVale); }
+  else if (strcmp(buffer, "LIFR") == 0) { window_set_background_color(s_main_window, GColorLavenderIndigo); }
+  else { window_set_background_color(s_main_window, GColorBlack); }
+  #endif
 }
 
 //---------------------------------App Messege Callbacks---------------------------------//
