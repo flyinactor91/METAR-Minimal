@@ -29,7 +29,7 @@ var updateReport = function(url) {
     if (('Error' in resp) || (!('Flight-Rules' in resp))) {
       sendDictionaryToPebble({'KEY_STATION': 'GOT', 'KEY_CONDITION': 'ERR'});
     } else {
-      sendDictionaryToPebble({'KEY_STATION': stationID, 'KEY_CONDITION': resp['Flight-Rules']});
+      sendDictionaryToPebble({'KEY_STATION': resp.Station, 'KEY_CONDITION': resp['Flight-Rules']});
     }
   };
   console.log('Now Fetching: ' + url);
@@ -106,7 +106,7 @@ Pebble.addEventListener('appmessage',
 Pebble.addEventListener('showConfiguration', function(e) {
   //Show config page
   console.log('Now showing config page');
-  Pebble.openURL('http://mdupont.com/Pebble-Config/pebble-metar-watchface-setup.html');
+  Pebble.openURL('http://mdupont.com/Pebble-Config/pebble-metar-watchface-setup-3-2.html?station=' + stationID + '&near=' + getNearest.toString());
 });
 
 //Listen for when user closes config page
