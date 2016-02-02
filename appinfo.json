@@ -1,7 +1,8 @@
 {
     "appKeys": {
         "KEY_CONDITION": 1,
-        "KEY_STATION": 0
+        "KEY_STATION": 0,
+        "KEY_SUCCESS": 2
     },
     "capabilities": [
         "location",
@@ -16,7 +17,7 @@
                 "file": "images/AppIconBW.png",
                 "menuIcon": true,
                 "name": "APP_ICON",
-                "type": "png"
+                "type": "bitmap"
             }
         ]
     },
@@ -24,10 +25,11 @@
     "shortName": "METAR Minimal",
     "targetPlatforms": [
         "aplite",
-        "basalt"
+        "basalt",
+        "chalk"
     ],
     "uuid": "77a484f5-1ed0-4ca9-bafc-6f2d39b3f9b5",
-    "versionLabel": "3.2",
+    "versionLabel": "3.4",
     "watchapp": {
         "watchface": true
     }

@@ -4,6 +4,7 @@
 
 #define KEY_STATION 0
 #define KEY_CONDITION 1
+#define KEY_SUCCESS 2
 
 #define UPDATE_INTERVAL 15 //minutes
 #define FAIL_RETRY_INTERVAL 5 //minutes
@@ -26,7 +27,11 @@ static void main_window_load(Window *window) {
   window_set_background_color(window, GColorBlack);
   
   //----Current Time TextLayer----//
+  #if defined(PBL_RECT)
   s_time_layer = text_layer_create(GRect(0, 8, 144, 50));
+  #elif defined(PBL_ROUND)
+  s_time_layer = text_layer_create(GRect(0, 20, 180, 50));
+  #endif
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, GColorWhite);
   text_layer_set_text(s_time_layer, "00:00");
@@ -35,7 +40,11 @@ static void main_window_load(Window *window) {
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
   
   //----Station TextLayer----//
+  #if defined(PBL_RECT)
   s_station_layer = text_layer_create(GRect(0, 58, 144, 50));
+  #elif defined(PBL_ROUND)
+  s_station_layer = text_layer_create(GRect(0, 63, 180, 50));
+  #endif
   text_layer_set_background_color(s_station_layer, GColorClear);
   text_layer_set_text_color(s_station_layer, GColorWhite);
   text_layer_set_text(s_station_layer, "ICAO");
@@ -44,7 +53,11 @@ static void main_window_load(Window *window) {
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_station_layer));
   
   //----Condition TextLayer----//
+  #if defined(PBL_RECT)
   s_condition_layer = text_layer_create(GRect(0, 108, 144, 50));
+  #elif defined(PBL_ROUND)
+  s_condition_layer = text_layer_create(GRect(0, 106, 180, 50));
+  #endif
   text_layer_set_background_color(s_condition_layer, GColorClear);
   text_layer_set_text_color(s_condition_layer, GColorWhite);
   text_layer_set_text(s_condition_layer, "....");
@@ -89,7 +102,12 @@ static void auto_update_handler() {
     updateTimer = 0;
     APP_LOG(APP_LOG_LEVEL_INFO, "Reseting counter to 0");
     failedUpdateTimer = 0;
-    app_message_outbox_send(); //Sending empty outbox requests new updated inbox
+    
+    //The phone won't read it, but we need a dict to execute the outbox call
+    DictionaryIterator *iter;
+    app_message_outbox_begin(&iter);
+    dict_write_uint8(iter, 0, 0);
+    app_message_outbox_send();
   } else {
     updateTimer++;
     failedUpdateTimer++;
@@ -100,6 +118,7 @@ static void auto_update_handler() {
     failedUpdateTimer = FAIL_RECOG_INTERVAL + 1;
     updateTimer = UPDATE_INTERVAL - FAIL_RETRY_INTERVAL;
     text_layer_set_text(s_condition_layer, ":(");
+    window_set_background_color(s_main_window, GColorBlack);
   }
 }
 
@@ -128,6 +147,14 @@ static void update_condition(Tuple *t) {
   #endif
 }
 
+static void update_success_background(Tuple *t) {
+  bool success = t->value->uint8;
+  if (!success) {
+    window_set_background_color(s_main_window, GColorBlack);
+  }
+  //Else determined by update_condition
+}
+
 //---------------------------------App Messege Callbacks---------------------------------//
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
@@ -145,6 +172,9 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
       break;
     case KEY_CONDITION:
       update_condition(t);
+      break;
+    case KEY_SUCCESS:
+      update_success_background(t);
       break;
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
@@ -201,7 +231,7 @@ static void init() {
   app_message_register_outbox_sent(outbox_sent_callback);
   
   // Open AppMessage
-  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+  app_message_open(400, 0);
 }
 
 static void deinit() {

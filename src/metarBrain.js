@@ -16,6 +16,20 @@ if (getNearest === 'true') {
 var stationID = localStorage.getItem('stationID');
 if ((stationID === null)||(stationID.length != 4)) { stationID = 'KJFK'; }
 
+//Previous Display Data
+//If the phone cannot fetch new data, show the previous data and change 'KEY_SUCCESS' to false
+//If no previous data, return the default display data
+function getLastData() {
+  var retDict = localStorage.getItem('previousdata');
+  if (retDict === null) {
+    retDict = {'KEY_STATION': 'GOT', 'KEY_CONDITION': 'ERR', 'KEY_SUCCESS': false};
+  } else {
+    retDict = JSON.parse(retDict);
+    retDict.KEY_SUCCESS = false;
+  }
+  return retDict;
+}
+
 /***************************** AVWX fetch functions *******************************/
 
 //Retrieve and parse JSON object for a given url
@@ -27,9 +41,11 @@ var updateReport = function(url) {
     console.log(request.responseText);
     var resp = JSON.parse(request.responseText);
     if (('Error' in resp) || (!('Flight-Rules' in resp))) {
-      sendDictionaryToPebble({'KEY_STATION': 'GOT', 'KEY_CONDITION': 'ERR'});
+      sendDictionaryToPebble(getLastData());
     } else {
-      sendDictionaryToPebble({'KEY_STATION': resp.Station, 'KEY_CONDITION': resp['Flight-Rules']});
+      var newDict = {'KEY_STATION': resp.Station, 'KEY_CONDITION': resp['Flight-Rules'], 'KEY_SUCCESS': true};
+      sendDictionaryToPebble(newDict);
+      localStorage.setItem('previousdata', JSON.stringify(newDict));
     }
   };
   console.log('Now Fetching: ' + url);
@@ -54,7 +70,7 @@ function useGeoURL() {
     locationSuccess,
     function(err) {
       console.log('Error requesting location! ' + err.toString());
-      sendDictionaryToPebble({'KEY_STATION': 'NEED', 'KEY_CONDITION': 'GEO'});
+      sendDictionaryToPebble({'KEY_STATION': 'NEED', 'KEY_CONDITION': 'GEO', 'KEY_SUCCESS': false});
     },
     {timeout: 15000, maximumAge: 60000}
   );
@@ -82,7 +98,7 @@ function handleUpdate() {
     var url = 'http://avwx.rest/api/metar.php?station=' + stationID + '&format=JSON';
     updateReport(url);
   } else {
-    sendDictionaryToPebble({'KEY_STATION': 'GOTO', 'KEY_CONDITION': 'STNG'});
+    sendDictionaryToPebble({'KEY_STATION': 'GOTO', 'KEY_CONDITION': 'STNG', 'KEY_SUCCESS': false});
   }
 }
 
